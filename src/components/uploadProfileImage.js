@@ -9,7 +9,6 @@ const uploadImageProfile = ({navigation}) =>{
     const imageUri = navigation.getParam('imageUri');
     if (imageUri===null) navigation.navigate('ProfileImage')
     const userName = navigation.getParam('userName');
-    console.log(imageUri,userName);
 
     const upload = ()=>{
         
@@ -28,7 +27,6 @@ const uploadImageProfile = ({navigation}) =>{
             },
             body: formData,
         }).then(y=>y.text()).then(z=>{
-            console.log(z);
             alert('Usuario creado!');
             navigation.navigate('Login');
         })
@@ -37,12 +35,16 @@ const uploadImageProfile = ({navigation}) =>{
     return(
         <View style={styles.mainWrapper}>
             {imageUri?(
-                <View>
+                <View style={{alignItems:'center', justifyContent:'center'}}>
                     <Image source={{uri: imageUri}} style={styles.image}/>
                     <TouchableOpacity
-                        style={{alignSelf:'center'}}
+                        style={{alignSelf:'center', justifyContent:'center'}}
                         onPress={()=>upload()}>
-                        <Ionicons name="ios-checkmark-circle-outline" size={70} color={'green'}></Ionicons>
+                        <View style={{flexDirection:'row', alignItems:'center', justifyContent:'center'}}>
+                            <Text>Confirmar selección</Text>
+                            <Ionicons name="ios-checkmark-circle-outline" size={40} color={'green'}></Ionicons>
+                        </View>
+                     
                     </TouchableOpacity>
                 </View>
                 

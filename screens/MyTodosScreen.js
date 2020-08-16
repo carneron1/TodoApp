@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, TouchableHighlight, StyleSheet, Text, View, Dimensions,Modal} from 'react-native';
+import { FlatList, TouchableHighlight, StyleSheet, Text, View, Dimensions, Button, Alert} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-community/async-storage';
 import config from '../src/config';
@@ -14,11 +14,11 @@ const MyTodosScreen = ({navigation})=>{
   const renderTodo = ({ item }) =>{
     var date = new Date(item.createDate);
     var year = date.getFullYear();
-    var month = date.getMonth();
+    var month = date.getMonth()+1;
     var day = date.getDate();
     var dateC = new Date(item.completedDate);
     var yearC = dateC.getFullYear();
-    var monthC = dateC.getMonth();
+    var monthC = dateC.getMonth()+1;
     var dayC = dateC.getDate();
     return (
       (item.userName!=userData.name)?
@@ -28,18 +28,24 @@ const MyTodosScreen = ({navigation})=>{
         <View style={styles.container}>
           <Text style={styles.title}>{item.title}</Text>
           {!item.completed?
-          <Text style={styles.categoryPending}>Pendiente</Text>:
-          <Text style={styles.categoryCompleted}>Completado por: {item.completedBy} el {dayC}/{monthC}/{yearC}</Text>
-        }
-          <View style={{flexDirection:'row', justifyContent:'center', alignItems:'center'}}>
+            <Text style={styles.categoryPending}>Pendiente</Text>:
+            <Text style={styles.categoryCompleted}>Completado por: {item.completedBy} el {dayC}/{monthC}/{yearC}</Text>
+          }
+          {item.isPrivate?
+            <Text style={styles.categoryPending}>Privado</Text>:
+            <View></View>
+          }
+          <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center', padding:10}}>
+            <View style={{flex:1}}>
               <Text style={styles.category}>Creado: {day}/{month}/{year}</Text>
-              <Ionicons
-                style={{alignSelf:'flex-end', marginLeft:15}}
-                name='ios-trash'
-                size={30}
+            </View> 
+            <View style={{flex:1}}>
+              <Button
+                title='Borrar'
                 color='red'
                 onPress={()=>handleDelete(item._id)}
               />
+            </View>
           </View>
 
         </View>
@@ -68,10 +74,35 @@ const MyTodosScreen = ({navigation})=>{
       });
       
   },[reloadControl]);
+  
+  const deleteTodo = (id)=>{
+    fetch(`${config.apiUrl}/deleteTodo`,{
+      method:'POST',
+      headers:{
+        'Content-Type': 'Application/json',
+        'token':token
+      },
+      body: JSON.stringify({
+        todoId:id
+      })
+    }).then (x=>x.text()).then (y=>{onChangeReloadControl(reloadControl+1)})
+  }
 
   const handleDelete = (id)=>{
-      console.log(id);
-      onChangeReloadControl(reloadControl+1);
+      Alert.alert(
+        "Aviso",
+        "¿Borrar tarea?",
+        [
+          {
+            text:"Confirmar",
+            onPress:()=>deleteTodo(id)
+          },
+          {
+            text:"Cancelar"
+          }
+
+        ]
+      )
   }
 
   return(

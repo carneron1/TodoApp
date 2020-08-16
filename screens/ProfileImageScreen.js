@@ -14,7 +14,6 @@ const ProfileImageScreen = ({navigation}) => {
   const userName = navigation.getParam('userName');
 
   useEffect(() => {
-    console.log(snapButton);
     setSnapButton(true);
     (async () => {
       const { status } = await Permissions.askAsync(Permissions.CAMERA);
@@ -46,7 +45,6 @@ const ProfileImageScreen = ({navigation}) => {
     if (cameraRef) {
       setSnapButton(false);
       let photo = await cameraRef.takePictureAsync({ skipProcessing: true });
-      console.log(photo.uri);
       setSnapButton(true);
       navigation.navigate('Upload',{imageUri: photo.uri, userName: userName});          
     }
@@ -76,7 +74,7 @@ const ProfileImageScreen = ({navigation}) => {
           <TouchableOpacity
             style={styles.icon}
             onPress={() => {setCameraType()}}>
-            <Ionicons name='ios-git-compare' color={'white'} size={40}/>
+            <Ionicons name='ios-reverse-camera' color={'white'} size={40}/>
           </TouchableOpacity>
             {snapButton?
               <TouchableOpacity
@@ -95,7 +93,7 @@ const ProfileImageScreen = ({navigation}) => {
           <TouchableOpacity
             style={styles.icon}
             onPress={() => {pickImage()}}>
-            <Ionicons name='ios-folder-open' color={'white'} size={40}/>
+            <Ionicons name='ios-folder-open' color={'white'} size={35}/>
           </TouchableOpacity>
 
         </View>

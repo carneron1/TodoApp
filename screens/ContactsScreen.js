@@ -70,7 +70,10 @@ const ContactsScreen = ({navigation})=>{
                 style={styles.icon} 
                 name="ios-menu" 
                 size={35}/>
-            <Text style={styles.header}>Contactos</Text>
+            <View style={{flex:1, justifyContent:'center',alignItems:'center'}}>
+              <Text style={styles.header}>Contactos</Text>
+            </View>
+            
 
         </View>
         
@@ -81,7 +84,7 @@ const ContactsScreen = ({navigation})=>{
               style={styles.textInput}
               autoCapitalize='none'
               onChangeText={(text)=>setfriendName(text)}
-              placeholder="Nombre del contacto"
+              placeholder="Agregar contacto"
               value={friendName}
               
           />
@@ -116,6 +119,9 @@ const styles = StyleSheet.create({
     headerView:{
         marginBottom:50,
         flexDirection:'row',
+        justifyContent:'center',
+        borderBottomWidth:1,
+        borderBottomColor: '#ff9900'
     },
     header: {
         fontSize: 21,
@@ -123,7 +129,8 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#000',
         marginTop: 50,
-        marginLeft:50
+        marginBottom:20,
+        marginLeft:-55,
       },
     container: {
         flexDirection:'row',
@@ -144,6 +151,7 @@ const styles = StyleSheet.create({
     icon:{
         marginTop:50,
         marginLeft:20,
+        marginBottom:20,
         color:'#146eb4',
     },
     mainWrapper:{

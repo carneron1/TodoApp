@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, TouchableHighlight, Image, StyleSheet, Text, View, Dimensions,Modal, Alert, ActivityIndicator, ToastAndroid} from 'react-native';
+import { FlatList, TouchableHighlight, Image, StyleSheet, Text, View, Dimensions,Modal, Alert, ActivityIndicator} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-community/async-storage';
 import config from '../src/config';
 import { ScrollView } from 'react-native-gesture-handler';
 
-const DashboardScreen = ({navigation})=>{
+const PrivateTodosScreen = ({navigation})=>{
 
   const [userData, setUserData] = useState({});
-  const [todoList, setTodoList] = useState([]);
+  const [todoPrivateList, setTodoPrivateList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [showingItem, setShowingItem] = useState({});
   const [token, setToken] = useState('');
   const [isLoadingImage, setIsLoadingImage] = useState(false);
-  const [firstReload, setFirstReload] = useState(true);
 
   const renderTodo = ({ item }) =>{
     var date = new Date(item.createDate);
@@ -22,7 +21,7 @@ const DashboardScreen = ({navigation})=>{
     var day = date.getDate()
     return (
       
-      (item.completed||item.isPrivate)?
+      (item.completed)?
       <View></View>
       :
       <TouchableHighlight underlayColor='rgba(73,182,77,1,0.9)' onPress={()=>{openModal(item)}}>
@@ -53,7 +52,6 @@ const DashboardScreen = ({navigation})=>{
         isCompleted:!item.completed
       })
     }).then(x=>x.text()).then(y=>{
-      ToastAndroid.show("Tarea completada!", ToastAndroid.SHORT); 
       setModalVisible(false);
       })
   }
@@ -70,7 +68,7 @@ const DashboardScreen = ({navigation})=>{
   }
 
   useEffect(()=>{
-    if ( todoList=== [])setIsLoadingImage(true);
+    if(todoPrivateList===[]) setIsLoadingImage(true);
     AsyncStorage.getItem('userToken').then(x=>{
       setToken(x);
       fetch(`${config.apiUrl}/getActualUser`,{
@@ -82,24 +80,29 @@ const DashboardScreen = ({navigation})=>{
       }).then(y=>y.json())
         .then(z=>{
           setUserData(z);
-          if (firstReload) ToastAndroid.show(`Bienvenido ${z.name}`, ToastAndroid.SHORT);
-          setFirstReload(false);
+          fetch(`${config.apiUrl}/getPrivatesTodos`,{
+            method:'GET',
+            headers:{
+              'Content-Type': 'application/json',
+              'token':x
+            }
+        })
+          .then(t=>t.json())
+          .then(res=>{
+            setTodoPrivateList(res);
+            setIsLoadingImage(false);
+          });
         })
     });
-    fetch(`${config.apiUrl}/getTodos`)
-      .then(x=>x.json())
-      .then(todos=>{
-        setTodoList(todos);
-        setIsLoadingImage(false);
-      });
+    
+    
       
-  },[todoList])
+  },[todoPrivateList])
 
   return(
     <View style={styles.mainWrapper}>
 
-      {/*---------------------------MODAL TODOS-----------------------------------------------------*/}
-      
+      {/*------------------------------------------MODAL-------------------------------------------------------------*/}
         <Modal visible={modalVisible}>
           <View style={styles.modalView}>
             <View>
@@ -108,6 +111,15 @@ const DashboardScreen = ({navigation})=>{
                 <View style={{height:200}}>
                   <ScrollView >
                     <Text style={styles.textDescription}>Descripción: {showingItem.description}</Text>
+                      <Text style={{color:'#146eb4', marginHorizontal:5, marginTop:10}}>Usuarios: </Text>
+                      <View style={{flexDirection:'row', width:Dimensions.get('window').width-200}}>
+                        <FlatList
+                        horizontal
+                        data={showingItem.users}
+                        renderItem={({item})=>(<Text style={{color:'#146eb4', marginHorizontal:5}}>{item}</Text>)}
+                        keyExtractor={(item)=>`${item}`}
+                        />
+                      </View>
                   </ScrollView>
                 </View>
             </View>
@@ -131,12 +143,12 @@ const DashboardScreen = ({navigation})=>{
             </View>
           </View> 
         </Modal>   
-        
-      {/*-------------------------END MODAL TODOS---------------------------------------------*/}
+
+        {/*------------------------------------------END MODAL-------------------------------------------------------------*/}
 
       <View style={{flexDirection:'row',}}>
         <View style={{justifyContent:'center',alignItems:'center', marginBottom:20}}><Ionicons onPress={()=>navigation.toggleDrawer()} size={35} style={styles.icon} name="ios-menu"  /></View>
-        <View style={{flex:1, justifyContent:'center',alignItems:'center', marginBottom:20}}><Text style={styles.header} >TAREAS PÚBLICAS</Text></View>
+        <View style={{flex:1, justifyContent:'center',alignItems:'center', marginBottom:20}}><Text style={styles.header} >TAREAS PRIVADAS</Text></View>
       </View>
       {isLoadingImage?<View style={{alignItems:'center', justifyContent:'center'}}><ActivityIndicator/></View>
       :
@@ -145,10 +157,9 @@ const DashboardScreen = ({navigation})=>{
           vertical
           showsVerticalScrollIndicator={true}
           numColumns={1}
-          data={todoList}
+          data={todoPrivateList}
           renderItem={renderTodo}
-          keyExtractor={item => `${item._id}`}
-        />
+          keyExtractor={item => `${item._id}`}/>
       </View>
       }
       
@@ -272,4 +283,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default DashboardScreen;
+export default PrivateTodosScreen;

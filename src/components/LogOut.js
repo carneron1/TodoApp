@@ -4,7 +4,7 @@ import { View } from 'react-native';
 
 export default ({navigation}) => {
     AsyncStorage.removeItem('userToken').then(x=>{
-        navigation.navigate('Auth');
+        navigation.navigate('Login');
     })
     return(
         <View></View>

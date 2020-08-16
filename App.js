@@ -7,12 +7,14 @@ import RegisterScreen from './screens/RegisterScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import AuthScreen from './screens/AuthScreen';
 import CreateTodoScreen from './screens/CreateTodoScreen';
+import CreatePrivateTodoScreen from './screens/CreatePrivateTodoScreen';
 import ProfileImageScreen from './screens/ProfileImageScreen';
 import MyTodosScreen from './screens/MyTodosScreen';
+import ContactsScreen from './screens/ContactsScreen';
+import PrivateTodosScreen from './screens/PrivateTodosScreen';
 
 import LogOut from './src/components/LogOut';
 import uploadImageProfile from './src/components/uploadProfileImage';
-import ContactsScreen from './screens/ContactsScreen';
 
 
 
@@ -32,7 +34,7 @@ const RootStack = createStackNavigator({
     ProfileImage: {
       screen:ProfileImageScreen,
       navigationOptions:{
-        title:'Imagen de perfil'
+        title:'Foto de perfil'
       }
     },
     Upload: {
@@ -52,16 +54,22 @@ const UserStack = createDrawerNavigator({
       title: 'Tareas públicas',
     }
   },
+  PrivateTodos: {
+    screen:PrivateTodosScreen,
+    navigationOptions:{
+      title: 'Tareas privadas',
+    }
+  },
   CreateTodo: {
     screen:CreateTodoScreen,
     navigationOptions:{
       title: 'Crear tarea pública',
     },
   },
-  Contacts: {
-    screen: ContactsScreen,
+  CreatePrivateTodo: {
+    screen:CreatePrivateTodoScreen,
     navigationOptions:{
-      title:'Contactos',
+      title: 'Crear tarea privada',
     },
   },
   MyTodos: {
@@ -70,6 +78,13 @@ const UserStack = createDrawerNavigator({
       title:'Mis tareas',
     },
   },
+  Contacts: {
+    screen: ContactsScreen,
+    navigationOptions:{
+      title:'Contactos',
+    },
+  },
+ 
   LogOut: {
     screen: LogOut,
     navigationOptions:{
