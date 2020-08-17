@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, TextInput, Button } from 'react-native';
+import { StyleSheet, View, TextInput, Button, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
 import config from'../src/config'
 
@@ -8,7 +8,10 @@ const RegisterScreen = ({navigation})=>{
   
   const [name, onChangeName] = useState('');
   const [password, onChangePassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
   const onSubmit = ()=>{
+    setIsLoading(true);
     fetch(`${config.apiUrl}/register`,{
       method : 'POST',
       headers:{
@@ -28,7 +31,10 @@ const RegisterScreen = ({navigation})=>{
   }
   return(
     <View style={styles.container}>
-      <TextInput
+      {isLoading?<ActivityIndicator size={45}/>
+      :
+      (<>
+        <TextInput
         style={styles.textInput}
         onChangeText={(text)=>onChangeName(text)}
         placeholder="Ingrese nombre de usuario"
@@ -50,6 +56,9 @@ const RegisterScreen = ({navigation})=>{
         onPress={()=>(name.length>=4)&&(password.length>=4)?onSubmit():alert('Ingrese un nombre o contraseña mayor a 4 letras')}
       />
 
+        </>
+      )}
+      
     </View>
   )
 }

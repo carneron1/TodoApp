@@ -8,6 +8,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 const DashboardScreen = ({navigation})=>{
 
   const [userData, setUserData] = useState({});
+  const [imageUrl, setImageUrl] = useState('');
   const [todoList, setTodoList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [showingItem, setShowingItem] = useState({});
@@ -38,6 +39,7 @@ const DashboardScreen = ({navigation})=>{
   const openModal = (item)=>{
     setModalVisible(!modalVisible);
     setShowingItem(item);
+    fetch(`${config.apiUrl}/getUserAvatarByName?name=${item.userName}`).then(x=>x.text()).then(y=>{setImageUrl(y)});
   }
 
   const completeTodo = (item)=>{
@@ -103,7 +105,8 @@ const DashboardScreen = ({navigation})=>{
         <Modal visible={modalVisible}>
           <View style={styles.modalView}>
             <View>
-                <Image style={styles.photoModal} source={{uri:config.apiUrl+"/getUserAvatarByName?name="+showingItem.userName}} />
+                {imageUrl?<Image style={styles.photoModal} source={{uri:imageUrl}} />:<View></View>}
+                
                 <Text style={styles.textTitle}>{showingItem.title}</Text>
                 <View style={{height:200}}>
                   <ScrollView >

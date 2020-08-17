@@ -1,5 +1,5 @@
-import React from 'react';
-import { Image, Text, View, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { Image, Text, View, StyleSheet, ActivityIndicator } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import config from '../config'
 import { Ionicons } from '@expo/vector-icons';
@@ -9,9 +9,10 @@ const uploadImageProfile = ({navigation}) =>{
     const imageUri = navigation.getParam('imageUri');
     if (imageUri===null) navigation.navigate('ProfileImage')
     const userName = navigation.getParam('userName');
+    const [isLoading, setIsLoading] = useState(false);
 
     const upload = ()=>{
-        
+        setIsLoading(true);
         const formData = new FormData();
         formData.append('image',{
             uri:imageUri,
@@ -28,6 +29,8 @@ const uploadImageProfile = ({navigation}) =>{
             body: formData,
         }).then(y=>y.text()).then(z=>{
             alert('Usuario creado!');
+            console.log(z);
+            setIsLoading(false);
             navigation.navigate('Login');
         })
     }
@@ -37,7 +40,8 @@ const uploadImageProfile = ({navigation}) =>{
             {imageUri?(
                 <View style={{alignItems:'center', justifyContent:'center'}}>
                     <Image source={{uri: imageUri}} style={styles.image}/>
-                    <TouchableOpacity
+                    {isLoading?<View><Text>Subiendo foto</Text><ActivityIndicator/></View>:
+                        <TouchableOpacity
                         style={{alignSelf:'center', justifyContent:'center'}}
                         onPress={()=>upload()}>
                         <View style={{flexDirection:'row', alignItems:'center', justifyContent:'center'}}>
@@ -46,6 +50,8 @@ const uploadImageProfile = ({navigation}) =>{
                         </View>
                      
                     </TouchableOpacity>
+                    }
+                    
                 </View>
                 
             )   
