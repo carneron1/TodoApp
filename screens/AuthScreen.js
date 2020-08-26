@@ -7,6 +7,9 @@ const AuthScreen = ({navigation}) =>{
 
     useEffect(()=>{
       AsyncStorage.getItem('userToken').then(x=>{
+        AsyncStorage.setItem('reload', 'true');
+        AsyncStorage.setItem('reloadPrivate', 'true');
+        AsyncStorage.setItem('reloadCreatePrivate', 'true');
         navigation.navigate(x?'User':'Auth');
       })
     })

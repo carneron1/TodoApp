@@ -45,8 +45,8 @@ const uploadImageProfile = ({navigation}) =>{
                         style={{alignSelf:'center', justifyContent:'center'}}
                         onPress={()=>upload()}>
                         <View style={{flexDirection:'row', alignItems:'center', justifyContent:'center'}}>
-                            <Text>Confirmar selección</Text>
-                            <Ionicons name="ios-checkmark-circle-outline" size={40} color={'green'}></Ionicons>
+                            <Text>Confirmar selección </Text>
+                            <Ionicons name="ios-checkmark-circle-outline" size={30} color={'green'}></Ionicons>
                         </View>
                      
                     </TouchableOpacity>

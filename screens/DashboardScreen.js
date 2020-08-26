@@ -1,20 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, TouchableHighlight, Image, StyleSheet, Text, View, Dimensions,Modal, Alert, ActivityIndicator, ToastAndroid} from 'react-native';
+import { FlatList, TouchableHighlight, Image, Text, View,Modal, Alert, ActivityIndicator, ToastAndroid} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-community/async-storage';
 import config from '../src/config';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import CommentsComponent from '../src/components/comments';
+import styles from '../src/styles'
 
-const DashboardScreen = ({navigation})=>{
 
+
+const DashboardScreen = ()=>{
+  
   const [userData, setUserData] = useState({});
   const [imageUrl, setImageUrl] = useState('');
   const [todoList, setTodoList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [showingItem, setShowingItem] = useState({});
   const [token, setToken] = useState('');
-  const [isLoadingImage, setIsLoadingImage] = useState(false);
-  const [firstReload, setFirstReload] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [forceReload, setForceReload] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState([]);
+
 
   const renderTodo = ({ item }) =>{
     var date = new Date(item.createDate);
@@ -41,6 +48,22 @@ const DashboardScreen = ({navigation})=>{
     setShowingItem(item);
     fetch(`${config.apiUrl}/getUserAvatarByName?name=${item.userName}`).then(x=>x.text()).then(y=>{setImageUrl(y)});
   }
+  const reload = ()=>{
+    setForceReload(!forceReload);
+  }
+
+  const toggleComments = () =>{
+    setShowComments(!showComments);
+  }
+
+  const getComments = ()=>{
+    console.log('DATOS');
+    fetch(`${config.apiUrl}/getComments?todoId=${showingItem._id}`).then(x=>x.json()).then(response=>{
+        if(response) {
+            setComments(response);
+        } else setVoidComments(true);
+    })
+  }
 
   const completeTodo = (item)=>{
     fetch(`${config.apiUrl}/completeTodo`,{
@@ -62,7 +85,7 @@ const DashboardScreen = ({navigation})=>{
   const handleComplete = ()=>{
     Alert.alert(
       "Aviso",
-      "¿Completar tarea?",
+      "¿Completar tarea? - La tarea será borrada",
       [
         {text:"Completar",
         onPress:()=>{completeTodo(showingItem)}},
@@ -72,62 +95,111 @@ const DashboardScreen = ({navigation})=>{
   }
 
   useEffect(()=>{
-    if ( todoList=== [])setIsLoadingImage(true);
-    AsyncStorage.getItem('userToken').then(x=>{
-      setToken(x);
-      fetch(`${config.apiUrl}/getActualUser`,{
-        method:'GET',
-        headers:{
-          'Content-Type': 'Application/json',
-          'token':x
-        }
-      }).then(y=>y.json())
-        .then(z=>{
-          setUserData(z);
-          if (firstReload) ToastAndroid.show(`Bienvenido ${z.name}`, ToastAndroid.SHORT);
-          setFirstReload(false);
-        })
-    });
-    fetch(`${config.apiUrl}/getTodos`)
-      .then(x=>x.json())
-      .then(todos=>{
-        setTodoList(todos);
-        setIsLoadingImage(false);
-      });
       
-  },[todoList])
+          console.log('fetching');
+          setIsLoading(true);
+          AsyncStorage.getItem('userToken').then(x=>{
+            setToken(x);
+            fetch(`${config.apiUrl}/getActualUser`,{
+              method:'GET',
+              headers:{
+                'Content-Type': 'Application/json',
+                'token':x
+              }
+            }).then(y=>y.json())
+              .then(z=>{
+                setUserData(z);
+              })
+          });
+          fetch(`${config.apiUrl}/getTodos`)
+            .then(x=>x.json())
+            .then(todos=>{
+              setTodoList(todos);
+              setIsLoading(false);
+            });
+
+      
+  },[modalVisible, forceReload])
 
   return(
     <View style={styles.mainWrapper}>
 
       {/*---------------------------MODAL TODOS-----------------------------------------------------*/}
-      
+      {/*---------------------------MODAL TODOS-----------------------------------------------------*/}
+      {/*---------------------------MODAL TODOS-----------------------------------------------------*/}
+
+        <Modal
+            animationType='slide'
+            visible={showComments}
+            onShow={()=>getComments()}>
+
+            <CommentsComponent
+              comments={comments}
+              voidComments={comments==0?true:false}
+              todoId={showingItem._id}
+              user={showingItem.userName}
+            />
+            
+            <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:40, marginTop:10}}>
+              <TouchableOpacity 
+                    style={{alignSelf:'center'}}
+                    onPress={()=>toggleComments()}>
+                      <Ionicons
+                        onPress={()=>{toggleComments()}}
+                        size={45}
+                        name="ios-arrow-round-back"
+                        style={{color:'grey'}}/>
+                      
+              </TouchableOpacity>
+
+
+            </View>
+     
+            
+        </Modal>
+
+        
         <Modal visible={modalVisible}>
           <View style={styles.modalView}>
             <View>
                 {imageUrl?<Image style={styles.photoModal} source={{uri:imageUrl}} />:<View></View>}
                 
                 <Text style={styles.textTitle}>{showingItem.title}</Text>
-                <View style={{height:200}}>
+                <View style={{height:150}}>
                   <ScrollView >
                     <Text style={styles.textDescription}>Descripción: {showingItem.description}</Text>
                   </ScrollView>
                 </View>
             </View>
-            <View style={{flex:1, justifyContent:'flex-end'}}>
+            <View style={{flex:1, justifyContent:'flex-end', alignItems:'center'}}>
+                
                 <Text style={styles.textName}>Creado por {showingItem.userName}</Text>
-                <View style={{width:200,flexDirection:'row',flex:1, justifyContent:'space-between'}}>
+                <TouchableOpacity 
+                  style={{borderWidth:1, 
+                          borderColor:'#ccc',
+                          paddingHorizontal:20, 
+                          paddingVertical:10, 
+                          backgroundColor:'#eee', 
+                          alignItems:'center',
+                          borderRadius:10,
+                          marginTop:5}}
+                  onPress={()=>toggleComments()}>
+
+                    <Ionicons name="ios-chatboxes" size={30} onPress={()=>toggleComments()}/>
+                </TouchableOpacity>
+                <View style={{width:200,flexDirection:'row',flex:1, justifyContent:'space-between', alignItems:'center'}}>
+                  
                   <Ionicons
                         onPress={()=>{setModalVisible(!modalVisible)}}
                         size={45}
                         name="ios-arrow-round-back"
-                        style={{marginTop:20, color:'grey'}}
+                        style={{marginTop:10, color:'grey'}}
                   />
                   <Ionicons
                         onPress={()=>{handleComplete()}}
-                        size={45}
+                        size={30}
                         name="ios-checkmark-circle-outline"
-                        style={{marginTop:20, color:'green'}}
+                        style={{marginTop:10, color:'green'}}
                   />
                 </View>
                 
@@ -136,143 +208,34 @@ const DashboardScreen = ({navigation})=>{
         </Modal>   
         
       {/*-------------------------END MODAL TODOS---------------------------------------------*/}
+      {/*-------------------------END MODAL TODOS---------------------------------------------*/}
+      {/*-------------------------END MODAL TODOS---------------------------------------------*/}
 
-      <View style={{flexDirection:'row',}}>
-        <View style={{justifyContent:'center',alignItems:'center', marginBottom:20}}><Ionicons onPress={()=>navigation.toggleDrawer()} size={35} style={styles.icon} name="ios-menu"  /></View>
-        <View style={{flex:1, justifyContent:'center',alignItems:'center', marginBottom:20}}><Text style={styles.header} >TAREAS PÚBLICAS</Text></View>
-      </View>
-      {isLoadingImage?<View style={{alignItems:'center', justifyContent:'center'}}><ActivityIndicator/></View>
-      :
-      <View style={{flex:1, borderTopWidth:1, borderColor:'#ff9900'}}>
-        <FlatList
-          vertical
-          showsVerticalScrollIndicator={true}
-          numColumns={1}
-          data={todoList}
-          renderItem={renderTodo}
-          keyExtractor={item => `${item._id}`}
-        />
-      </View>
-      }
-      
-      
+        {!isLoading?
+          <View style={{flex:1}}>
+            <FlatList
+              vertical
+              showsVerticalScrollIndicator={true}
+              numColumns={1}
+              data={todoList}
+              renderItem={renderTodo}
+              keyExtractor={item => `${item._id}`}
+            />
+            <TouchableOpacity style={styles.reloadButton} onPress={()=>{reload()}}>
+              <Ionicons name="ios-refresh" color="green"/>
+              <Text style={{color:'green'}}> Actualizar</Text>
+            </TouchableOpacity>
+          </View>
+          :
+          <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
+            <ActivityIndicator size={40}/>
+          </View>
+      }     
     </View>
   )
 }
 
-const { width, height } = Dimensions.get('window');
-// orientation must fixed
-const SCREEN_WIDTH = width < height ? width : height;
 
-const recipeNumColums = 2;
-// item size
-const RECIPE_ITEM_HEIGHT = 150;
-const RECIPE_ITEM_MARGIN = 20;
 
-const styles = StyleSheet.create({
-  mainWrapper:{
-    flex:1,
-    height:Dimensions.get('window').height,
-    padding:2
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: RECIPE_ITEM_MARGIN,
-    marginTop: 10,
-    width: (SCREEN_WIDTH - (recipeNumColums + 1) * RECIPE_ITEM_MARGIN),
-    height: 100,
-    borderColor: '#ccc',
-    borderWidth: 0.5,
-    borderRadius: 15
-  },
-  photo: {
-    width: (SCREEN_WIDTH - (recipeNumColums + 1) * RECIPE_ITEM_MARGIN) / recipeNumColums,
-    height: RECIPE_ITEM_HEIGHT,
-    borderRadius: 15,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0
-  },
-  photoModal: {
-    width: 150,
-    height:150,
-    borderRadius: 15,
-    marginTop:10,
-    alignSelf:'center',
-    marginBottom:5
-  },
-  title: {
-    fontSize: 17,
-    textTransform:'uppercase',
-    textAlign: 'center',
-    color: '#000',
-    marginTop: 5,
-    marginRight: 5,
-    marginLeft: 5,
-    marginBottom:15
-  },
-  icon:{
-    marginTop:50,
-    marginLeft:20,
-    color:'#146eb4',
-    alignSelf:'center'
-
-  },
-  modalView: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 10,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    width: Dimensions.get('window').width-50,
-    height: Dimensions.get('window').height-50,
-    alignSelf:'center',
-    marginTop:15
-  },
-  textTitle:{
-    fontSize: 26,
-    margin: 5,
-    fontWeight: 'bold',
-    color: '#000',
-    textAlign: 'center'
-  },
-  header: {
-    fontSize: 21,
-    textTransform:'uppercase',
-    fontWeight: 'bold',
-    color: '#000',
-    marginTop: 50,
-    marginLeft: -55
-    
-  },
-  textDescription:{
-    fontSize: 16,
-    marginTop: 10,
-    alignSelf:'flex-start',
-    color:'#000'
-  },
-  textName:{
-    fontSize: 13,
-    marginTop: 1,
-    marginBottom:1,
-    alignSelf:'flex-start',
-    color:'#146eb4'
-
-  },
-  category: {
-    marginTop: 5,
-    marginBottom: 2,
-    fontSize: 13,
-    color:'#146eb4'
-  }
-});
 
 export default DashboardScreen;

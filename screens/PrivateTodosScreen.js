@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, TouchableHighlight, Image, StyleSheet, Text, View, Dimensions,Modal, Alert, ActivityIndicator} from 'react-native';
+import { FlatList, TouchableHighlight, TouchableOpacity, Image, Text, View, Dimensions,Modal, Alert, ActivityIndicator, ToastAndroid} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-community/async-storage';
-import config from '../src/config';
 import { ScrollView } from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-community/async-storage';
+import CommentsComponent from '../src/components/comments';
+import config from '../src/config';
+import styles from '../src/styles';
 
-const PrivateTodosScreen = ({navigation})=>{
+const PrivateTodosScreen = ()=>{
 
   const [userData, setUserData] = useState({});
   const [todoPrivateList, setTodoPrivateList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [showingItem, setShowingItem] = useState({});
   const [token, setToken] = useState('');
-  const [isLoadingImage, setIsLoadingImage] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [forceReload, setForceReload] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState([]);
+
 
   const renderTodo = ({ item }) =>{
     var date = new Date(item.createDate);
@@ -37,6 +44,23 @@ const PrivateTodosScreen = ({navigation})=>{
   const openModal = (item)=>{
     setModalVisible(!modalVisible);
     setShowingItem(item);
+    fetch(`${config.apiUrl}/getUserAvatarByName?name=${item.userName}`).then(x=>x.text()).then(y=>{setImageUrl(y)});
+  }
+  const reload = ()=>{
+    setForceReload(!forceReload);
+  }
+
+  const toggleComments = () =>{
+    setShowComments(!showComments);
+  }
+
+  const getComments = ()=>{
+    console.log('DATOS');
+    fetch(`${config.apiUrl}/getComments?todoId=${showingItem._id}`).then(x=>x.json()).then(response=>{
+        if(response) {
+            setComments(response);
+        } else setVoidComments(true);
+    })
   }
 
   const completeTodo = (item)=>{
@@ -52,13 +76,14 @@ const PrivateTodosScreen = ({navigation})=>{
         isCompleted:!item.completed
       })
     }).then(x=>x.text()).then(y=>{
+      ToastAndroid.show("Tarea completada!", ToastAndroid.SHORT);
       setModalVisible(false);
       })
   }
   const handleComplete = ()=>{
     Alert.alert(
       "Aviso",
-      "¿Completar tarea?",
+      "¿Completar tarea? La tarea será borrada",
       [
         {text:"Completar",
         onPress:()=>{completeTodo(showingItem)}},
@@ -68,47 +93,78 @@ const PrivateTodosScreen = ({navigation})=>{
   }
 
   useEffect(()=>{
-    if(todoPrivateList===[]) setIsLoadingImage(true);
-    AsyncStorage.getItem('userToken').then(x=>{
-      setToken(x);
-      fetch(`${config.apiUrl}/getActualUser`,{
-        method:'GET',
-        headers:{
-          'Content-Type': 'Application/json',
-          'token':x
-        }
-      }).then(y=>y.json())
-        .then(z=>{
-          setUserData(z);
-          fetch(`${config.apiUrl}/getPrivatesTodos`,{
+      console.log('fetch private');
+      setIsLoading(true);
+        AsyncStorage.getItem('userToken').then(x=>{
+          setToken(x);
+          fetch(`${config.apiUrl}/getActualUser`,{
             method:'GET',
             headers:{
-              'Content-Type': 'application/json',
+              'Content-Type': 'Application/json',
               'token':x
             }
-        })
-          .then(t=>t.json())
-          .then(res=>{
-            setTodoPrivateList(res);
-            setIsLoadingImage(false);
-          });
-        })
-    });
-    
-    
-      
-  },[todoPrivateList])
+          }).then(y=>y.json())
+            .then(z=>{
+            
+              setUserData(z);
+              fetch(`${config.apiUrl}/getPrivatesTodos`,{
+                method:'GET',
+                headers:{
+                  'Content-Type': 'application/json',
+                  'token':x
+                }
+            })
+              .then(t=>t.json())
+              .then(res=>{
+                setIsLoading(false);
+                setTodoPrivateList(res);
+              });
+            })
+        });
+
+
+  },[modalVisible, forceReload])
 
   return(
     <View style={styles.mainWrapper}>
 
       {/*------------------------------------------MODAL-------------------------------------------------------------*/}
+        <Modal
+            animationType='slide'
+            visible={showComments}
+            onShow={()=>getComments()}>
+
+            <CommentsComponent
+              comments={comments}
+              voidComments={comments==0?true:false}
+              todoId={showingItem._id}
+              user={showingItem.userName}
+            />
+            
+            <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:40, marginTop:10}}>
+              <TouchableOpacity 
+                    style={{alignSelf:'center'}}
+                    onPress={()=>toggleComments()}>
+                      <Ionicons
+                        onPress={()=>{toggleComments()}}
+                        size={45}
+                        name="ios-arrow-round-back"
+                        style={{color:'grey'}}/>
+                      
+              </TouchableOpacity>
+
+
+            </View>
+     
+            
+        </Modal>
+        
         <Modal visible={modalVisible}>
           <View style={styles.modalView}>
             <View>
-                <Image style={styles.photoModal} source={{uri:config.apiUrl+"/getUserAvatarByName?name="+showingItem.userName}} />
+            {imageUrl?<Image style={styles.photoModal} source={{uri:imageUrl}} />:<View></View>}
                 <Text style={styles.textTitle}>{showingItem.title}</Text>
-                <View style={{height:200}}>
+                <View style={{height:150}}>
                   <ScrollView >
                     <Text style={styles.textDescription}>Descripción: {showingItem.description}</Text>
                       <Text style={{color:'#146eb4', marginHorizontal:5, marginTop:10}}>Usuarios: </Text>
@@ -123,20 +179,32 @@ const PrivateTodosScreen = ({navigation})=>{
                   </ScrollView>
                 </View>
             </View>
-            <View style={{flex:1, justifyContent:'flex-end'}}>
+            <View style={{flex:1, justifyContent:'flex-end', alignItems:'center'}}>
                 <Text style={styles.textName}>Creado por {showingItem.userName}</Text>
+                <TouchableOpacity 
+                  style={{borderWidth:1, 
+                          borderColor:'#ccc', 
+                          paddingVertical:10, 
+                          backgroundColor:'#eee', 
+                          alignItems:'center', 
+                          paddingHorizontal:20,
+                          marginTop:5,
+                          borderRadius:10}}
+                  onPress={()=>toggleComments()}>
+                    <Ionicons name="ios-chatboxes" size={30} onPress={()=>toggleComments()}/>
+                </TouchableOpacity>
                 <View style={{width:200,flexDirection:'row',flex:1, justifyContent:'space-between'}}>
                   <Ionicons
                         onPress={()=>{setModalVisible(!modalVisible)}}
                         size={45}
                         name="ios-arrow-round-back"
-                        style={{marginTop:20, color:'grey'}}
+                        style={{marginTop:10, color:'grey'}}
                   />
                   <Ionicons
                         onPress={()=>{handleComplete()}}
                         size={45}
                         name="ios-checkmark-circle-outline"
-                        style={{marginTop:20, color:'green'}}
+                        style={{marginTop:10, color:'green'}}
                   />
                 </View>
                 
@@ -146,13 +214,9 @@ const PrivateTodosScreen = ({navigation})=>{
 
         {/*------------------------------------------END MODAL-------------------------------------------------------------*/}
 
-      <View style={{flexDirection:'row',}}>
-        <View style={{justifyContent:'center',alignItems:'center', marginBottom:20}}><Ionicons onPress={()=>navigation.toggleDrawer()} size={35} style={styles.icon} name="ios-menu"  /></View>
-        <View style={{flex:1, justifyContent:'center',alignItems:'center', marginBottom:20}}><Text style={styles.header} >TAREAS PRIVADAS</Text></View>
-      </View>
-      {isLoadingImage?<View style={{alignItems:'center', justifyContent:'center'}}><ActivityIndicator/></View>
+      {isLoading?<View style={{alignItems:'center', justifyContent:'center', flex:1}}><ActivityIndicator size={40}/></View>
       :
-      <View style={{flex:1, borderTopWidth:1, borderColor:'#ff9900'}}>
+      <View style={{flex:1}}>
         <FlatList
           vertical
           showsVerticalScrollIndicator={true}
@@ -160,6 +224,11 @@ const PrivateTodosScreen = ({navigation})=>{
           data={todoPrivateList}
           renderItem={renderTodo}
           keyExtractor={item => `${item._id}`}/>
+
+          <TouchableOpacity style={styles.reloadButton} onPress={()=>{reload()}}>
+            <Ionicons name="ios-refresh" color="green"/>
+            <Text style={{color:'green'}}> Actualizar</Text>
+          </TouchableOpacity>
       </View>
       }
       
@@ -168,119 +237,6 @@ const PrivateTodosScreen = ({navigation})=>{
   )
 }
 
-const { width, height } = Dimensions.get('window');
-// orientation must fixed
-const SCREEN_WIDTH = width < height ? width : height;
 
-const recipeNumColums = 2;
-// item size
-const RECIPE_ITEM_HEIGHT = 150;
-const RECIPE_ITEM_MARGIN = 20;
-
-const styles = StyleSheet.create({
-  mainWrapper:{
-    flex:1,
-    height:Dimensions.get('window').height,
-    padding:2
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: RECIPE_ITEM_MARGIN,
-    marginTop: 10,
-    width: (SCREEN_WIDTH - (recipeNumColums + 1) * RECIPE_ITEM_MARGIN),
-    height: 100,
-    borderColor: '#ccc',
-    borderWidth: 0.5,
-    borderRadius: 15
-  },
-  photo: {
-    width: (SCREEN_WIDTH - (recipeNumColums + 1) * RECIPE_ITEM_MARGIN) / recipeNumColums,
-    height: RECIPE_ITEM_HEIGHT,
-    borderRadius: 15,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0
-  },
-  photoModal: {
-    width: 150,
-    height:150,
-    borderRadius: 15,
-    marginTop:10,
-    alignSelf:'center',
-    marginBottom:5
-  },
-  title: {
-    fontSize: 17,
-    textTransform:'uppercase',
-    textAlign: 'center',
-    color: '#000',
-    marginTop: 5,
-    marginRight: 5,
-    marginLeft: 5,
-    marginBottom:15
-  },
-  icon:{
-    marginTop:50,
-    marginLeft:20,
-    color:'#146eb4',
-    alignSelf:'center'
-
-  },
-  modalView: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 10,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    width: Dimensions.get('window').width-50,
-    height: Dimensions.get('window').height-50,
-    alignSelf:'center',
-    marginTop:15
-  },
-  textTitle:{
-    fontSize: 26,
-    margin: 5,
-    fontWeight: 'bold',
-    color: '#000',
-    textAlign: 'center'
-  },
-  header: {
-    fontSize: 21,
-    textTransform:'uppercase',
-    fontWeight: 'bold',
-    color: '#000',
-    marginTop: 50,
-    marginLeft: -55
-    
-  },
-  textDescription:{
-    fontSize: 16,
-    marginTop: 10,
-    alignSelf:'flex-start',
-    color:'#000'
-  },
-  textName:{
-    fontSize: 13,
-    marginTop: 1,
-    marginBottom:1,
-    alignSelf:'flex-start',
-    color:'#146eb4'
-
-  },
-  category: {
-    marginTop: 5,
-    marginBottom: 2,
-    fontSize: 13,
-    color:'#146eb4'
-  }
-});
 
 export default PrivateTodosScreen;

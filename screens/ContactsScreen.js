@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Dimensions} from 'react-native';
+import { StyleSheet, View, TextInput, Text, Dimensions} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
 import config from '../src/config';
 import { FlatList } from 'react-native-gesture-handler';
+import styles from '../src/styles';
 
 
 
@@ -63,38 +64,20 @@ const ContactsScreen = ({navigation})=>{
 
   return(
     <View style={styles.mainWrapper}>
-        <View
-            style={styles.headerView}>
-            <Ionicons
-                onPress={()=>navigation.toggleDrawer()} 
-                style={styles.icon} 
-                name="ios-menu" 
-                size={35}/>
-            <View style={{flex:1, justifyContent:'center',alignItems:'center'}}>
-              <Text style={styles.header}>Contactos</Text>
-            </View>
-            
-
-        </View>
-        
         <View 
-         style={styles.container}
-        >
+         style={styles.contactsContainer}>
           <TextInput
               style={styles.textInput}
               autoCapitalize='none'
               onChangeText={(text)=>setfriendName(text)}
-              placeholder="Agregar contacto"
-              value={friendName}
-              
-          />
+              placeholder="Agregar colaborador"
+              value={friendName}/>
 
               <Ionicons
                 name='ios-add-circle-outline'
                 color='green'
-                size={45}
-                onPress={()=>onSubmit()}
-                />
+                size={35}
+                onPress={()=>onSubmit()}/>
 
               
         </View>
@@ -103,7 +86,7 @@ const ContactsScreen = ({navigation})=>{
                 showsVerticalScrollIndicator={true}
                 numColumns={1}
                 data={userData.friends}
-                renderItem={({item})=>(<View style={{width:Dimensions.get('window').width-100, borderBottomWidth:0.5, borderBottomColor:'#ff9900', alignSelf:'stretch',alignItems:'center'}}><Text style={styles.item}>{item}</Text></View>)}
+                renderItem={({item})=>(<View style={{width:Dimensions.get('window').width-100, borderWidth:0.5, borderColor:'#ff9900', alignSelf:'stretch',alignItems:'center', borderRadius:5,marginBottom:3}}><Text style={{fontSize:18}}>{item}</Text></View>)}
                 keyExtractor={item => `${item}`}/>
         </View>
         
@@ -114,60 +97,5 @@ const ContactsScreen = ({navigation})=>{
 
   )
 }
-
-const styles = StyleSheet.create({
-    headerView:{
-        marginBottom:50,
-        flexDirection:'row',
-        justifyContent:'center',
-        borderBottomWidth:1,
-        borderBottomColor: '#ff9900'
-    },
-    header: {
-        fontSize: 21,
-        textTransform:'uppercase',
-        fontWeight: 'bold',
-        color: '#000',
-        marginTop: 50,
-        marginBottom:20,
-        marginLeft:-55,
-      },
-    container: {
-        flexDirection:'row',
-        backgroundColor: '#fff',
-        justifyContent:'center',
-        alignItems:'center'
-    },
-    textInput:{
-        borderBottomWidth:0.5,
-        borderBottomColor:'#ff9900',
-        padding:2,
-        marginBottom:5,
-        marginRight:10,
-        fontSize:20,
-        alignSelf:'stretch',
-        textAlign:'center'
-    },
-    icon:{
-        marginTop:50,
-        marginLeft:20,
-        marginBottom:20,
-        color:'#146eb4',
-    },
-    mainWrapper:{
-        flex:1
-    },
-    listContainer:{
-        flex:1,
-        marginTop:50,
-        alignItems:'center',
-        justifyContent:'center'
-    },
-    item:{
-        fontSize:25,
-
-        
-    }
-});
 
 export default ContactsScreen;

@@ -15,7 +15,9 @@ import PrivateTodosScreen from './screens/PrivateTodosScreen';
 
 import LogOut from './src/components/LogOut';
 import uploadImageProfile from './src/components/uploadProfileImage';
-
+import SelectViewScreen from './screens/SelectViewScreen';
+import SelectCreateScreen from './screens/SelectCreateScreen';
+import MyAccountScreen from './screens/MyAccountScreen';
 
 
 const RootStack = createStackNavigator({
@@ -47,17 +49,42 @@ const RootStack = createStackNavigator({
   
 )
 
-const UserStack = createDrawerNavigator({
-  Dashboard: {
+const viewTodos = createStackNavigator({
+  SelectViewScreen: {
+    screen:SelectViewScreen,
+    navigationOptions:{
+      title:'Ver tareas',
+      headerShown:false
+    }
+  },
+  PublicTodos: {
     screen:DashboardScreen,
     navigationOptions:{
       title: 'Tareas públicas',
+
     }
   },
   PrivateTodos: {
     screen:PrivateTodosScreen,
     navigationOptions:{
       title: 'Tareas privadas',
+    }
+  },
+  MyTodos: {
+    screen: MyTodosScreen,
+    navigationOptions:{
+      title:'Mis tareas',
+    },
+  },
+  
+})
+
+const createTodos = createStackNavigator({
+  SelectCreateScreen:{
+    screen:SelectCreateScreen,
+    navigationOptions:{
+      title:'Crear tareas',
+      headerShown:false
     }
   },
   CreateTodo: {
@@ -72,19 +99,47 @@ const UserStack = createDrawerNavigator({
       title: 'Crear tarea privada',
     },
   },
-  MyTodos: {
-    screen: MyTodosScreen,
+}, {initialRouteName:'SelectCreateScreen'})
+
+const myAccount = createStackNavigator({
+  SelectMyAccount:{
+    screen:MyAccountScreen,
     navigationOptions:{
-      title:'Mis tareas',
-    },
+      title:'Mi cuenta',
+      headerShown:false
+    }
   },
   Contacts: {
     screen: ContactsScreen,
     navigationOptions:{
-      title:'Contactos',
+      title:'Colaboradores',
     },
   },
- 
+  
+})
+
+const UserStack = createDrawerNavigator({
+  viewTodos:{
+    screen:viewTodos,
+    navigationOptions:{
+      title:'Ver tareas',
+      
+    }
+  },
+  createTodos:{
+    screen:createTodos,
+    navigationOptions:{
+      title:'Crear tareas',
+      
+    }
+  },
+  MyAccount:{
+    screen:myAccount,
+    navigationOptions:{
+      title:'Mi cuenta',
+      
+    }
+  },
   LogOut: {
     screen: LogOut,
     navigationOptions:{
