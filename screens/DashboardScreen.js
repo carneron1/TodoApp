@@ -133,14 +133,7 @@ const DashboardScreen = ()=>{
             visible={showComments}
             onShow={()=>getComments()}>
 
-            <CommentsComponent
-              comments={comments}
-              voidComments={comments==0?true:false}
-              todoId={showingItem._id}
-              user={showingItem.userName}
-            />
-            
-            <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:40, marginTop:10}}>
+            <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:40, marginTop:5}}>
               <TouchableOpacity 
                     style={{alignSelf:'center'}}
                     onPress={()=>toggleComments()}>
@@ -154,6 +147,13 @@ const DashboardScreen = ()=>{
 
 
             </View>
+            <CommentsComponent
+              comments={comments}
+              voidComments={comments==0?true:false}
+              todoId={showingItem._id}
+              user={userData.name}
+            />
+            
      
             
         </Modal>
@@ -161,6 +161,13 @@ const DashboardScreen = ()=>{
         
         <Modal visible={modalVisible}>
           <View style={styles.modalView}>
+            <Ionicons
+                          onPress={()=>{setModalVisible(!modalVisible)}}
+                          size={45}
+                          name="ios-arrow-round-back"
+                          style={{color:'grey', alignSelf:'flex-start'}}
+                    />
+
             <View>
                 {imageUrl?<Image style={styles.photoModal} source={{uri:imageUrl}} />:<View></View>}
                 
@@ -174,33 +181,30 @@ const DashboardScreen = ()=>{
             <View style={{flex:1, justifyContent:'flex-end', alignItems:'center'}}>
                 
                 <Text style={styles.textName}>Creado por {showingItem.userName}</Text>
-                <TouchableOpacity 
-                  style={{borderWidth:1, 
-                          borderColor:'#ccc',
+                
+                <View style={{width:300,flexDirection:'row',flex:1, justifyContent:'space-between', alignItems:'center'}}>
+                  
+                  
+                  <TouchableOpacity 
+                  style={{
                           paddingHorizontal:20, 
                           paddingVertical:10, 
-                          backgroundColor:'#eee', 
-                          alignItems:'center',
-                          borderRadius:10,
-                          marginTop:5}}
-                  onPress={()=>toggleComments()}>
+                          backgroundColor:'#eee',
+                          borderRadius:2,
+                          elevation:2}}>
 
-                    <Ionicons name="ios-chatboxes" size={30} onPress={()=>toggleComments()}/>
-                </TouchableOpacity>
-                <View style={{width:200,flexDirection:'row',flex:1, justifyContent:'space-between', alignItems:'center'}}>
-                  
-                  <Ionicons
-                        onPress={()=>{setModalVisible(!modalVisible)}}
-                        size={45}
-                        name="ios-arrow-round-back"
-                        style={{marginTop:10, color:'grey'}}
-                  />
-                  <Ionicons
-                        onPress={()=>{handleComplete()}}
-                        size={30}
-                        name="ios-checkmark-circle-outline"
-                        style={{marginTop:10, color:'green'}}
-                  />
+                      <Text onPress={()=>toggleComments()}>Comentarios</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                  style={{
+                    backgroundColor:'#146eb4',
+                    paddingHorizontal:20,
+                    paddingVertical:10,
+                    borderRadius:2,
+                    elevation:2}}>
+                    <Text style={{color:'white'}} onPress={()=>handleComplete()}>Completar</Text>
+                  </TouchableOpacity>
                 </View>
                 
             </View>

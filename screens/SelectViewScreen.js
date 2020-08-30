@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-community/async-storage';
-import { StyleSheet, Dimensions, Text, View, ToastAndroid } from 'react-native';
+import { Text, View, ToastAndroid } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import config from '../src/config';
 import styles from '../src/styles';
@@ -39,7 +39,7 @@ const SelectViewScreen = ({navigation})=>{
                 <View style={{justifyContent:'center',alignItems:'center', marginBottom:10}}><Ionicons onPress={()=>navigation.toggleDrawer()} size={35} style={styles.icon} name="ios-menu"  /></View>
                 <View style={{flex:1, justifyContent:'center',alignItems:'center', marginBottom:10}}><Text style={styles.header} >tareas publicadas</Text></View>
             </View>
-            <ScrollView style={{borderTopWidth:1, borderTopColor:'#ff9900'}} contentContainerStyle={{alignItems:'center'}}>
+            <ScrollView style={{borderTopWidth:0.5, borderTopColor:'#ccc'}} contentContainerStyle={{alignItems:'center'}}>
 
                 <TouchableOpacity onPress={()=>{navigation.navigate('PublicTodos')}} style={styles.selectItem}>
                     <Ionicons name='ios-create' size={20} color='#146eb4'/>

@@ -15,8 +15,8 @@ const styles = StyleSheet.create({
       alignItems:'center', 
       justifyContent:'center',
       padding:10,
-      borderWidth:0.5,
-      borderColor:'green'
+      elevation:2,
+      borderRadius:2
 
     },
 
@@ -33,11 +33,16 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       marginTop: 10,
-      width: (SCREEN_WIDTH - (recipeNumColums + 1) * RECIPE_ITEM_MARGIN),
-      height: 110,
-      borderColor: '#ccc',
-      borderWidth: 0.5,
-      borderRadius: 15
+      width: Dimensions.get('window').width-20,
+      height: 130,
+      elevation:1,
+      
+      borderRadius: 5,
+      shadowOffset:{
+        width:1,
+        height:1
+      }
+
     },
 
     photo: {
@@ -70,7 +75,7 @@ const styles = StyleSheet.create({
 
     modalView: {
       backgroundColor: "white",
-      borderRadius: 20,
+      borderRadius: 5,
       padding: 10,
       alignItems: "center",
       shadowColor: "#000",
@@ -81,7 +86,7 @@ const styles = StyleSheet.create({
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
       elevation: 5,
-      width: Dimensions.get('window').width-50,
+      width: Dimensions.get('window').width-30,
       height: Dimensions.get('window').height-50,
       alignSelf:'center',
       marginTop:15
@@ -117,7 +122,6 @@ const styles = StyleSheet.create({
     },
 
     categoryPending: {
-      marginTop: 5,
       marginBottom: 2,
       fontSize: 13,
       color:'#ff9900'
@@ -138,12 +142,15 @@ const styles = StyleSheet.create({
       alignItems:'center',
       justifyContent:'center',
       alignSelf:'center',
+      flex:1,
+      paddingTop:10,
+      marginBottom:10
     },
 
     listItem:{
       width:Dimensions.get('window').width-70,
       height:70,
-      marginTop:20,
+      marginTop:10,
       borderBottomWidth:1,
       borderColor:'#ccc',
       alignSelf:'stretch',
@@ -155,7 +162,9 @@ const styles = StyleSheet.create({
       alignItems:'center',
       justifyContent:'center',
       alignSelf:'center',
-      paddingHorizontal:10,
+      backgroundColor:'#eee',
+      marginTop:5
+  
     },
     input:{
       width:(Dimensions.get('window').width)/2,
@@ -184,10 +193,10 @@ const styles = StyleSheet.create({
 
     textInput:{
       borderBottomWidth:0.5,
-      borderBottomColor:'#ff9900',
+      borderBottomColor:'#ccc',
       padding:2,
       marginBottom:5,
-      marginRight:10,
+      marginHorizontal:10,
       fontSize:20,
       alignSelf:'stretch',
       textAlign:'center'
@@ -223,7 +232,7 @@ const styles = StyleSheet.create({
 
     text:{
       fontSize:15,
-      color: '#146eb4'
+      color: 'white'
     },
 
     createPublicContainer: {
@@ -235,14 +244,15 @@ const styles = StyleSheet.create({
 
     uploadPublicButton:{
       marginTop:30,
-      borderWidth: 1,
+      backgroundColor:'#146eb4',
+      elevation:3,
       borderRadius:2,
-      borderColor:'#ff9900',
+      
       justifyContent: 'center',
       alignItems:'center',
       padding:5,
       width:150,
-      height:50
+      height:40
     },
 
     adviceContainer:{
@@ -267,14 +277,14 @@ const styles = StyleSheet.create({
     },
 
     selectItem:{
-      width:Dimensions.get('window').width-100,
+      width:Dimensions.get('window').width-20,
       height:100,
       borderColor:'#ff9900',
       alignItems:'center',
       justifyContent:'center',
-      margin:5,
+      margin:3,
       borderRadius:5,
-      elevation:5,
+      elevation:2,
     },
 
     icon:{

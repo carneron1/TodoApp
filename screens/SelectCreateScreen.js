@@ -9,10 +9,10 @@ const SelectCreateScreen = ({navigation})=>{
     return(
         <View>
             <View style={{flexDirection:'row', elevation:5}}>
-                <View style={{justifyContent:'center',alignItems:'center', marginBottom:20}}><Ionicons onPress={()=>navigation.toggleDrawer()} size={35} style={styles.icon} name="ios-menu"  /></View>
-                <View style={{flex:1, justifyContent:'center',alignItems:'center', marginBottom:20}}><Text style={styles.header} >CREACIÓN DE TAREAS</Text></View>
+                <View style={{justifyContent:'center',alignItems:'center', marginBottom:10}}><Ionicons onPress={()=>navigation.toggleDrawer()} size={35} style={styles.icon} name="ios-menu"  /></View>
+                <View style={{flex:1, justifyContent:'center',alignItems:'center', marginBottom:10}}><Text style={styles.header} >CREACIÓN DE TAREAS</Text></View>
             </View>
-            <ScrollView style={{borderTopWidth:1, borderTopColor:'#ff9900'}} contentContainerStyle={{alignItems:'center'}}>
+            <ScrollView style={{borderTopWidth:0.5, borderTopColor:'#ccc'}} contentContainerStyle={{alignItems:'center'}}>
 
                 <TouchableOpacity onPress={()=>{navigation.navigate('CreateTodo')}} style={styles.selectItem}>
                     <Ionicons name='ios-create' size={20} color='#ff9900'/>

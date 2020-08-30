@@ -138,7 +138,7 @@ const PrivateTodosScreen = ()=>{
               comments={comments}
               voidComments={comments==0?true:false}
               todoId={showingItem._id}
-              user={showingItem.userName}
+              user={userData.name}
             />
             
             <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:40, marginTop:10}}>
@@ -161,6 +161,12 @@ const PrivateTodosScreen = ()=>{
         
         <Modal visible={modalVisible}>
           <View style={styles.modalView}>
+            <Ionicons
+                        onPress={()=>{setModalVisible(!modalVisible)}}
+                        size={45}
+                        name="ios-arrow-round-back"
+                        style={{color:'grey', alignSelf:'flex-start'}}
+                  />
             <View>
             {imageUrl?<Image style={styles.photoModal} source={{uri:imageUrl}} />:<View></View>}
                 <Text style={styles.textTitle}>{showingItem.title}</Text>
@@ -181,31 +187,28 @@ const PrivateTodosScreen = ()=>{
             </View>
             <View style={{flex:1, justifyContent:'flex-end', alignItems:'center'}}>
                 <Text style={styles.textName}>Creado por {showingItem.userName}</Text>
-                <TouchableOpacity 
-                  style={{borderWidth:1, 
-                          borderColor:'#ccc', 
+                <View style={{width:300,flexDirection:'row',flex:1, justifyContent:'space-between', alignItems:'center'}}>
+
+                  <TouchableOpacity 
+                  style={{
+                          paddingHorizontal:20, 
                           paddingVertical:10, 
-                          backgroundColor:'#eee', 
-                          alignItems:'center', 
-                          paddingHorizontal:20,
-                          marginTop:5,
-                          borderRadius:10}}
-                  onPress={()=>toggleComments()}>
-                    <Ionicons name="ios-chatboxes" size={30} onPress={()=>toggleComments()}/>
-                </TouchableOpacity>
-                <View style={{width:200,flexDirection:'row',flex:1, justifyContent:'space-between'}}>
-                  <Ionicons
-                        onPress={()=>{setModalVisible(!modalVisible)}}
-                        size={45}
-                        name="ios-arrow-round-back"
-                        style={{marginTop:10, color:'grey'}}
-                  />
-                  <Ionicons
-                        onPress={()=>{handleComplete()}}
-                        size={45}
-                        name="ios-checkmark-circle-outline"
-                        style={{marginTop:10, color:'green'}}
-                  />
+                          backgroundColor:'#eee',
+                          borderRadius:2,
+                          elevation:2}}>
+
+                      <Text onPress={()=>toggleComments()}>Comentarios</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                  style={{
+                    backgroundColor:'#146eb4',
+                    paddingHorizontal:20,
+                    paddingVertical:10,
+                    borderRadius:2,
+                    elevation:2}}>
+                    <Text style={{color:'white'}} onPress={()=>handleComplete()}>Completar</Text>
+                  </TouchableOpacity>
                 </View>
                 
             </View>
